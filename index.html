@@ -711,6 +711,136 @@
     margin-right: 2px;
   }
   @keyframes blink { 0%,50%,100% { opacity: 1; } 25%,75% { opacity: 0; } }
+
+  /* ═══════════════════════════════════════════
+     MOBILE FIRST — max-width: 600px
+  ═══════════════════════════════════════════ */
+  @media (max-width: 600px) {
+
+    /* Header */
+    header {
+      padding: 12px 14px;
+      gap: 8px;
+      flex-wrap: nowrap;
+    }
+    .logo-icon { width: 30px; height: 30px; }
+    .logo-name  { font-size: 18px; }
+    .logo-sub   { font-size: 9px; letter-spacing: 1.5px; }
+
+    /* Clock — compact */
+    .header-clock {
+      padding: 6px 10px;
+      border-radius: 8px;
+      gap: 0;
+    }
+    .clock-time   { font-size: 14px; min-width: auto; letter-spacing: 0; }
+    .clock-divider, .clock-date, .clock-city { display: none; }
+
+    /* API button — icon only */
+    #apiStatus { display: none; }
+    .api-btn   { padding: 7px 10px; }
+
+    /* Main — single column, tighter */
+    main {
+      grid-template-columns: 1fr;
+      padding: 12px 12px 24px;
+      gap: 14px;
+      min-height: unset;
+    }
+
+    /* Panels */
+    .panel { border-radius: 14px; }
+    .panel-header { padding: 13px 16px; }
+    .panel-title  { font-size: 11px; letter-spacing: 0.5px; }
+    .panel-body   { padding: 14px; gap: 12px; }
+
+    /* Textarea — shorter on mobile so keyboard doesn't push it out */
+    .prompt-area {
+      min-height: 140px;
+      font-size: 15px;
+      padding: 13px;
+      border-radius: 10px;
+    }
+
+    /* Output */
+    .output-area {
+      min-height: 200px;
+      font-size: 13px;
+      padding: 13px;
+      border-radius: 10px;
+    }
+
+    /* Model row — stacked */
+    .model-row { flex-direction: column; align-items: stretch; gap: 6px; }
+    .model-label { font-size: 11px; }
+    .model-select {
+      padding: 11px 12px;
+      font-size: 13px;
+      border-radius: 9px;
+    }
+
+    /* Submit button — full width, bigger tap target */
+    .submit-btn {
+      padding: 15px;
+      font-size: 16px;
+      border-radius: 12px;
+    }
+
+    /* Copy / TG buttons */
+    .copy-btn, .tg-btn {
+      padding: 8px 11px;
+      font-size: 11px;
+      border-radius: 7px;
+    }
+
+    /* Modal — slides up from bottom */
+    .modal-overlay { align-items: flex-end; }
+    .modal {
+      width: 100%;
+      max-width: 100%;
+      border-radius: 20px 20px 0 0;
+      padding: 24px 20px 36px;
+      animation: modalUp 0.3s cubic-bezier(0.34,1.2,0.64,1);
+    }
+    @keyframes modalUp {
+      from { transform: translateY(100%); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+    .modal-title  { font-size: 18px; }
+    .modal-sub    { font-size: 12px; margin-bottom: 20px; }
+    .api-input    { padding: 13px 14px; font-size: 14px; }
+    .btn-save, .btn-cancel { padding: 13px; font-size: 14px; border-radius: 10px; }
+    .settings-tab { font-size: 13px; padding: 9px 6px; }
+    .send-mode    { padding: 11px 12px; }
+    .send-mode label { font-size: 12px; }
+    .input-group  { margin-bottom: 14px; }
+    .modal-actions { margin-top: 20px; gap: 10px; }
+
+    /* Toast */
+    .toast { font-size: 13px; padding: 11px 20px; bottom: 20px; }
+
+    /* Output placeholder */
+    .output-placeholder { font-size: 13px; }
+    .output-placeholder svg { width: 36px; height: 36px; }
+  }
+
+  /* ═══════════════════════════════════════════
+     TABLET — 601px to 900px
+  ═══════════════════════════════════════════ */
+  @media (min-width: 601px) and (max-width: 900px) {
+    main {
+      grid-template-columns: 1fr;
+      padding: 20px 20px 32px;
+      gap: 18px;
+    }
+    header { padding: 16px 22px; }
+    .clock-date, .clock-city { display: none; }
+    .clock-divider { display: none; }
+    .clock-time { font-size: 16px; }
+    .prompt-area { min-height: 160px; }
+    .output-area  { min-height: 220px; }
+    .modal { max-width: 500px; }
+  }
 </style>
 </head>
 <body>
