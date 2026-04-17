@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProMT · by Ayoub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&family=Noto+Kufi+Arabic:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b10;
+    --surface: #0e1520;
+    --surface2: #131c2e;
+    --border: #1e2d45;
+    --accent: #00e5ff;
+    --accent2: #7c3aed;
+    --accent3: #f59e0b;
+    --text: #e2eaf7;
+    --muted: #5a7090;
+    --success: #10b981;
+    --error: #ef4444;
+    --glow: rgba(0,229,255,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glow orbs */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb-1 {
+    width: 500px; height: 500px;
+    background: rgba(0,229,255,0.06);
+    top: -150px; right: -100px;
+  }
+  .orb-2 {
+    width: 400px; height: 400px;
+    background: rgba(124,58,237,0.06);
+    bottom: 0; left: -100px;
+  }
+
+  /* Header */
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+    background: rgba(8,11,16,0.8);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: -1px;
+  }
+  .logo-icon {
+    width: 36px; height: 36px;
+    border-radius: 9px;
+    overflow: hidden;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 0 16px rgba(0,229,255,0.2);
+  }
+  .logo-icon img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+  }
+  .logo-text { display: flex; flex-direction: column; line-height: 1; gap: 2px; }
+  .logo-name {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: var(--text);
+  }
+  .logo-name .prom { color: var(--accent); }
+  .logo-name .mt   { color: var(--accent3); }
+  .logo-sub {
+    font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--muted);
+    letter-spacing: 2px;
+    font-weight: 400;
+  }
+
+  /* Clock */
+  .header-clock {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .clock-time {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-shadow: 0 0 12px rgba(0,229,255,0.4);
+    min-width: 70px;
+    text-align: center;
+  }
+  .clock-divider {
+    width: 1px; height: 28px;
+    background: var(--border);
+  }
+  .clock-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .clock-date {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+  .clock-city {
+    font-size: 10px;
+    color: var(--accent3);
+    letter-spacing: 1px;
+  }
+  @media (max-width: 768px) {
+    .clock-date, .clock-city { display: none; }
+    .clock-divider { display: none; }
+    .header-clock { padding: 8px 12px; }
+    .clock-time { font-size: 15px; }
+  }
+
+  .api-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: 'IBM Plex Mono', monospace;
+    transition: all 0.2s;
+  }
+  .api-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(0,229,255,0.05);
+  }
+  .api-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--error);
+    transition: background 0.3s;
+  }
+  .api-dot.connected { background: var(--success); box-shadow: 0 0 8px var(--success); }
+
+  /* Main layout */
+  main {
+    position: relative;
+    z-index: 5;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 24px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    min-height: calc(100vh - 73px);
+  }
+
+  /* Panel */
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+  }
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    opacity: 0.4;
+  }
+
+  .panel-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .panel-title {
+    font-size: 13px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .panel-title-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  .panel-body {
+    flex: 1;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  /* Textarea */
+  .prompt-area {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    color: var(--text);
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    resize: none;
+    outline: none;
+    min-height: 220px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    direction: rtl;
+  }
+  .prompt-area::placeholder { color: var(--muted); }
+  .prompt-area:focus {
+    border-color: rgba(0,229,255,0.4);
+    box-shadow: 0 0 0 3px rgba(0,229,255,0.06);
+  }
+
+  /* Model selector */
+  .model-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .model-label {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    white-space: nowrap;
+  }
+  .model-select {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: 'IBM Plex Mono', monospace;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    direction: ltr;
+  }
+  .model-select:focus { border-color: var(--accent); }
+
+  /* Submit button */
+  .submit-btn {
+    padding: 14px 24px;
+    background: linear-gradient(135deg, var(--accent), #00b8d4);
+    color: #000;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    overflow: hidden;
+  }
+  .submit-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0.15);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .submit-btn:hover::before { opacity: 1; }
+  .submit-btn:active { transform: scale(0.98); }
+  .submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Output area */
+  .output-area {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 15px;
+    line-height: 1.8;
+    min-height: 280px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    direction: rtl;
+    position: relative;
+  }
+  .output-placeholder {
+    color: var(--muted);
+    font-size: 14px;
+    text-align: center;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+  }
+  .output-placeholder svg { margin: 0 auto 12px; display: block; opacity: 0.3; }
+
+  /* Copy button */
+  .copy-btn {
+    padding: 7px 14px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 7px;
+    font-size: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover {
+    border-color: var(--accent3);
+    color: var(--accent3);
+  }
+
+  /* Loading animation */
+  .typing-dots {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .typing-dots span {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: bounce 1.2s infinite;
+  }
+  .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+    40% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* Token counter */
+  .char-count {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    text-align: left;
+    direction: ltr;
+  }
+
+  /* API Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    display: none;
+    place-items: center;
+  }
+  .modal-overlay.open { display: grid; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    width: 90%;
+    max-width: 460px;
+    padding: 32px;
+    position: relative;
+    animation: modalIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.9) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+    border-radius: 18px 18px 0 0;
+  }
+
+  .modal-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .modal-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 28px;
+    line-height: 1.6;
+  }
+  .modal-sub a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .input-group {
+    margin-bottom: 20px;
+  }
+  .input-label {
+    display: block;
+    font-size: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+  }
+  .api-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    outline: none;
+    transition: border-color 0.2s;
+    direction: ltr;
+  }
+  .api-input:focus { border-color: var(--accent); }
+  .api-input::placeholder { color: var(--muted); }
+
+  .modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+  }
+  .btn-save {
+    flex: 1;
+    padding: 12px;
+    background: linear-gradient(135deg, var(--accent2), #5b21b6);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .btn-save:hover { opacity: 0.9; }
+  .btn-cancel {
+    padding: 12px 20px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-cancel:hover { border-color: var(--error); color: var(--error); }
+
+  .close-modal {
+    position: absolute;
+    top: 16px; left: 16px;
+    width: 30px; height: 30px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    display: grid;
+    place-items: center;
+    transition: all 0.2s;
+  }
+  .close-modal:hover { border-color: var(--error); color: var(--error); }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(60px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-size: 13px;
+    z-index: 200;
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s;
+    opacity: 0;
+    pointer-events: none;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
+  .toast.success { border-color: var(--success); color: var(--success); }
+  .toast.error { border-color: var(--error); color: var(--error); }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    main { grid-template-columns: 1fr; padding: 20px 16px; }
+    header { padding: 16px 20px; }
+    .logo { font-size: 17px; }
+  }
+
+  /* Telegram button */
+  .tg-btn {
+    padding: 7px 14px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 7px;
+    font-size: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tg-btn:hover {
+    border-color: #2AABEE;
+    color: #2AABEE;
+    background: rgba(42,171,238,0.06);
+  }
+  .tg-btn svg { transition: transform 0.2s; }
+  .tg-btn:hover svg { transform: translateX(-2px); }
+
+  /* Header actions group */
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Settings tabs */
+  .settings-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 22px;
+  }
+  .settings-tab {
+    flex: 1;
+    padding: 8px;
+    background: transparent;
+    border: none;
+    border-radius: 7px;
+    color: var(--muted);
+    font-size: 13px;
+    font-family: 'Noto Kufi Arabic', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .settings-tab.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Telegram status badge */
+  .tg-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--muted);
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    margin-top: 12px;
+  }
+  .tg-status.ok { color: #2AABEE; border-color: rgba(42,171,238,0.3); }
+  .tg-status-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* Send mode toggle */
+  .send-mode {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-top: 12px;
+  }
+  .send-mode label {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    flex: 1;
+  }
+  .toggle {
+    position: relative;
+    width: 38px; height: 20px;
+    flex-shrink: 0;
+  }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    left: 3px; top: 3px;
+    background: var(--muted);
+    border-radius: 50%;
+    transition: 0.3s;
+  }
+  .toggle input:checked + .toggle-slider { background: rgba(42,171,238,0.3); }
+  .toggle input:checked + .toggle-slider::before {
+    transform: translateX(18px);
+    background: #2AABEE;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* Streaming cursor */
+  .cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: var(--accent);
+    animation: blink 1s infinite;
+    vertical-align: text-bottom;
+    margin-right: 2px;
+  }
+  @keyframes blink { 0%,50%,100% { opacity: 1; } 25%,75% { opacity: 0; } }
+</style>
+</head>
+<body>
+
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+
+<!-- Header -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <img src="https://ik.imagekit.io/imgayoub/LOGO/ayoub.pw%20logo%20many%20size/favicon.svg" alt="Ayoub Logo" onerror="this.src='https://ik.imagekit.io/imgayoub/LOGO/ayoub.pw%20logo%20many%20size/favicon-96x96.png'">
+    </div>
+    <div class="logo-text">
+      <div class="logo-name"><span class="prom">ProM</span><span class="mt">T</span></div>
+      <div class="logo-sub">by ayoub</div>
+    </div>
+  </div>
+
+  <div class="header-clock">
+    <div class="clock-time" id="clockTime">--:--:--</div>
+    <div class="clock-divider"></div>
+    <div class="clock-info">
+      <div class="clock-date" id="clockDate">---</div>
+      <div class="clock-city">VIENNA · AT</div>
+    </div>
+  </div>
+
+  <div class="header-actions">
+    <button class="api-btn" id="tgHeaderBtn" onclick="openSettingsModal('tg')" title="تيليجرام">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-2.04 9.613c-.154.681-.556.847-1.126.527l-3.108-2.29-1.5 1.442c-.165.165-.305.305-.626.305l.222-3.167 5.79-5.228c.251-.222-.056-.346-.39-.123L7.07 14.168 4.01 13.22c-.672-.21-.684-.672.14-.996l10.95-4.22c.558-.201 1.047.124.462.244z"/></svg>
+      <span class="api-dot" id="tgDot"></span>
+    </button>
+    <button class="api-btn" onclick="openSettingsModal('or')">
+      <span class="api-dot" id="apiDot"></span>
+      <span id="apiStatus">OpenRouter API</span>
+    </button>
+  </div>
+</header>
+
+<!-- Main -->
+<main>
+  <!-- Input Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">
+        <div class="panel-title-dot"></div>
+        الفكرة الخام
+      </div>
+      <span class="char-count" id="charCount">0 حرف</span>
+    </div>
+    <div class="panel-body">
+      <textarea
+        class="prompt-area"
+        id="inputPrompt"
+        placeholder="اكتب فكرتك هنا... مثلاً: 'صفحة هبوط لتطبيق توصيل طعام بتصميم داكن وأنيق'"
+        oninput="updateCharCount()"
+      ></textarea>
+
+      <div class="model-row">
+        <span class="model-label">MODEL</span>
+        <select class="model-select" id="modelSelect">
+          <option value="anthropic/claude-sonnet-4-5">Claude Sonnet 4.5</option>
+          <option value="anthropic/claude-opus-4">Claude Opus 4</option>
+          <option value="openai/gpt-4o">GPT-4o</option>
+          <option value="openai/gpt-4o-mini">GPT-4o mini</option>
+          <option value="google/gemini-2.0-flash-001">Gemini 2.0 Flash</option>
+          <option value="meta-llama/llama-3.3-70b-instruct">Llama 3.3 70B</option>
+          <option value="deepseek/deepseek-chat">DeepSeek V3</option>
+          <option value="mistralai/mistral-large">Mistral Large</option>
+        </select>
+      </div>
+
+      <button class="submit-btn" id="submitBtn" onclick="enhancePrompt()">
+        <span id="btnText">✦ تحسين الفرونت إند</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Output Panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">
+        <div class="panel-title-dot" style="background: var(--accent3); box-shadow: 0 0 8px var(--accent3);"></div>
+        الكود المحسّن
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button class="tg-btn" id="tgSendBtn" onclick="sendToTelegram()" style="display:none">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-2.04 9.613c-.154.681-.556.847-1.126.527l-3.108-2.29-1.5 1.442c-.165.165-.305.305-.626.305l.222-3.167 5.79-5.228c.251-.222-.056-.346-.39-.123L7.07 14.168 4.01 13.22c-.672-.21-.684-.672.14-.996l10.95-4.22c.558-.201 1.047.124.462.244z"/></svg>
+          إرسال
+        </button>
+        <button class="copy-btn" id="copyBtn" onclick="copyOutput()" style="display:none">⊕ نسخ</button>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="output-area" id="outputArea">
+        <div class="output-placeholder" id="placeholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+          أدخل فكرتك واضغط تحسين<br>
+          <span style="font-size:12px; opacity:0.6;">سيتم توليد كود HTML/CSS/JS كامل</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Settings Modal (OpenRouter + Telegram) -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <button class="close-modal" onclick="closeModal()">✕</button>
+    <div class="modal-title">⚙ الإعدادات</div>
+
+    <!-- Tabs -->
+    <div class="settings-tabs">
+      <button class="settings-tab active" id="tab-or" onclick="switchTab('or')">⚡ OpenRouter</button>
+      <button class="settings-tab" id="tab-tg" onclick="switchTab('tg')">✈ تيليجرام</button>
+    </div>
+
+    <!-- OpenRouter Tab -->
+    <div class="tab-panel active" id="panel-or">
+      <div class="modal-sub">
+        احصل على مفتاحك من <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a>
+        — يتيح لك الوصول لأكثر من 200 نموذج ذكاء اصطناعي.
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="apiKeyInput">API KEY</label>
+        <input type="password" class="api-input" id="apiKeyInput" placeholder="sk-or-v1-..." autocomplete="off">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-save" onclick="saveApiKey()">حفظ المفتاح</button>
+        <button class="btn-cancel" onclick="closeModal()">إلغاء</button>
+      </div>
+    </div>
+
+    <!-- Telegram Tab -->
+    <div class="tab-panel" id="panel-tg">
+      <div class="modal-sub">
+        أنشئ بوتاً من <a href="https://t.me/BotFather" target="_blank">@BotFather</a> واحصل على التوكن،
+        ثم أرسل رسالة للبوت للحصول على Chat ID.
+      </div>
+      <div class="input-group">
+        <label class="input-label" for="tgTokenInput">BOT TOKEN</label>
+        <input type="password" class="api-input" id="tgTokenInput" placeholder="123456:ABC-DEF..." autocomplete="off">
+      </div>
+      <div class="input-group" style="margin-bottom:0">
+        <label class="input-label" for="tgChatInput">CHAT ID</label>
+        <input type="text" class="api-input" id="tgChatInput" placeholder="123456789" autocomplete="off" style="direction:ltr">
+      </div>
+      <div id="tgStatusBadge" style="display:none"></div>
+
+      <div class="send-mode">
+        <label for="tgAutoToggle">إرسال تلقائي بعد كل توليد</label>
+        <label class="toggle">
+          <input type="checkbox" id="tgAutoToggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-save" onclick="saveTgConfig()" style="background: linear-gradient(135deg,#2AABEE,#1a8abd)">حفظ الإعدادات</button>
+        <button class="btn-cancel" style="border-color:rgba(42,171,238,0.3);color:#2AABEE" onclick="testTelegram()">اختبار الاتصال</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── Clock (Vienna) ─────────────────────────────────
+  function updateClock() {
+    const now = new Date();
+    const viennaTime = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Vienna' }));
+
+    const hh = String(viennaTime.getHours()).padStart(2,'0');
+    const mm = String(viennaTime.getMinutes()).padStart(2,'0');
+    const ss = String(viennaTime.getSeconds()).padStart(2,'0');
+    document.getElementById('clockTime').textContent = `${hh}:${mm}:${ss}`;
+
+    const days = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+    const months = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    const dayName = days[viennaTime.getDay()];
+    const day     = viennaTime.getDate();
+    const month   = months[viennaTime.getMonth()];
+    document.getElementById('clockDate').textContent = `${dayName} ${day} ${month}`;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+  let apiKey    = localStorage.getItem('openrouter_key') || '';
+  let tgToken   = localStorage.getItem('tg_token') || '';
+  let tgChatId  = localStorage.getItem('tg_chat_id') || '';
+  let tgAuto    = localStorage.getItem('tg_auto') === 'true';
+  let lastCode  = '';
+
+  // ── Init ───────────────────────────────────────────
+  if (apiKey) updateApiStatus(true);
+  else setTimeout(() => openSettingsModal('or'), 600);
+  updateTgStatus();
+
+  // ── Settings Modal ─────────────────────────────────
+  function openSettingsModal(tab = 'or') {
+    document.getElementById('modalOverlay').classList.add('open');
+    switchTab(tab);
+    if (tab === 'or') {
+      document.getElementById('apiKeyInput').value = apiKey ? '••••••••' + apiKey.slice(-4) : '';
+    } else {
+      document.getElementById('tgTokenInput').value = tgToken ? '••••••••' + tgToken.slice(-4) : '';
+      document.getElementById('tgChatInput').value  = tgChatId;
+      document.getElementById('tgAutoToggle').checked = tgAuto;
+      refreshTgBadge();
+    }
+  }
+
+  function switchTab(tab) {
+    ['or','tg'].forEach(t => {
+      document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+      document.getElementById(`panel-${t}`).classList.toggle('active', t === tab);
+    });
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+  function closeModalOutside(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  }
+
+  // ── OpenRouter ─────────────────────────────────────
+  function updateApiStatus(connected) {
+    document.getElementById('apiDot').className = 'api-dot' + (connected ? ' connected' : '');
+    document.getElementById('apiStatus').textContent = connected ? 'متصل ✓' : 'OpenRouter API';
+  }
+
+  function saveApiKey() {
+    const v = document.getElementById('apiKeyInput').value.trim();
+    if (!v || v.includes('•')) { if (apiKey) { closeModal(); return; } showToast('أدخل مفتاح صحيح','error'); return; }
+    if (!v.startsWith('sk-or-')) { showToast('المفتاح يجب أن يبدأ بـ sk-or-','error'); return; }
+    apiKey = v;
+    localStorage.setItem('openrouter_key', apiKey);
+    updateApiStatus(true);
+    closeModal();
+    showToast('تم حفظ مفتاح OpenRouter ✓','success');
+  }
+
+  // ── Telegram ───────────────────────────────────────
+  function updateTgStatus() {
+    const dot = document.getElementById('tgDot');
+    if (tgToken && tgChatId) {
+      dot.className = 'api-dot connected';
+    } else {
+      dot.className = 'api-dot';
+    }
+  }
+
+  function refreshTgBadge() {
+    const badge = document.getElementById('tgStatusBadge');
+    if (tgToken && tgChatId) {
+      badge.style.display = 'block';
+      badge.innerHTML = `<div class="tg-status ok"><div class="tg-status-dot"></div>بوت مربوط · Chat ${tgChatId}</div>`;
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+
+  function saveTgConfig() {
+    const tokenInput = document.getElementById('tgTokenInput').value.trim();
+    const chatInput  = document.getElementById('tgChatInput').value.trim();
+    const autoVal    = document.getElementById('tgAutoToggle').checked;
+
+    if (!tokenInput || !chatInput) { showToast('أدخل التوكن والـ Chat ID','error'); return; }
+
+    if (!tokenInput.includes('•')) tgToken = tokenInput;
+    tgChatId = chatInput;
+    tgAuto   = autoVal;
+
+    localStorage.setItem('tg_token',   tgToken);
+    localStorage.setItem('tg_chat_id', tgChatId);
+    localStorage.setItem('tg_auto',    tgAuto);
+
+    updateTgStatus();
+    refreshTgBadge();
+    closeModal();
+    showToast('تم حفظ إعدادات تيليجرام ✓','success');
+  }
+
+  async function testTelegram() {
+    const tokenInput = document.getElementById('tgTokenInput').value.trim();
+    const chatInput  = document.getElementById('tgChatInput').value.trim();
+    if (!tokenInput || !chatInput) { showToast('أدخل التوكن والـ Chat ID أولاً','error'); return; }
+
+    const token = tokenInput.includes('•') ? tgToken : tokenInput;
+    const chat  = chatInput;
+
+    showToast('جاري الاختبار...','');
+    try {
+      const res = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chat, text: '✅ Ayoub Prompt Studio — الاتصال يعمل!' })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showToast('تم الإرسال بنجاح ✓ تحقق من تيليجرام','success');
+      } else {
+        showToast('خطأ: ' + (data.description || 'فشل الاتصال'),'error');
+      }
+    } catch(e) {
+      showToast('خطأ في الاتصال: ' + e.message,'error');
+    }
+  }
+
+  async function sendToTelegram() {
+    if (!tgToken || !tgChatId) { openSettingsModal('tg'); return; }
+    if (!lastCode) { showToast('لا يوجد كود للإرسال','error'); return; }
+
+    const btn = document.getElementById('tgSendBtn');
+    btn.textContent = '...';
+    btn.disabled = true;
+
+    const idea = document.getElementById('inputPrompt').value.trim();
+    const model = document.getElementById('modelSelect').value;
+
+    // Send as file (document) if code is long, else as message
+    const caption = `✦ *Ayoub Prompt Studio*\n\n💡 *الفكرة:* ${idea}\n🤖 *النموذج:* \`${model}\``;
+
+    try {
+      // Send caption message first
+      await fetch(`https://api.telegram.org/bot${tgToken}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: tgChatId,
+          text: caption,
+          parse_mode: 'Markdown'
+        })
+      });
+
+      // Send code as document file
+      const blob = new Blob([lastCode], { type: 'text/html' });
+      const fd   = new FormData();
+      fd.append('chat_id', tgChatId);
+      fd.append('document', blob, 'prompt-result.html');
+      fd.append('caption', '📄 ملف HTML الكامل');
+
+      const res  = await fetch(`https://api.telegram.org/bot${tgToken}/sendDocument`, {
+        method: 'POST', body: fd
+      });
+      const data = await res.json();
+      if (data.ok) {
+        showToast('تم الإرسال لتيليجرام ✓','success');
+      } else {
+        showToast('خطأ تيليجرام: ' + data.description,'error');
+      }
+    } catch(e) {
+      showToast('فشل الإرسال: ' + e.message,'error');
+    } finally {
+      btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248-2.04 9.613c-.154.681-.556.847-1.126.527l-3.108-2.29-1.5 1.442c-.165.165-.305.305-.626.305l.222-3.167 5.79-5.228c.251-.222-.056-.346-.39-.123L7.07 14.168 4.01 13.22c-.672-.21-.684-.672.14-.996l10.95-4.22c.558-.201 1.047.124.462.244z"/></svg> إرسال`;
+      btn.disabled = false;
+    }
+  }
+
+  // ── UI ─────────────────────────────────────────────
+  function updateCharCount() {
+    document.getElementById('charCount').textContent = document.getElementById('inputPrompt').value.length + ' حرف';
+  }
+
+  // ── Generate ───────────────────────────────────────
+  async function enhancePrompt() {
+    if (!apiKey) { openSettingsModal('or'); return; }
+
+    const idea = document.getElementById('inputPrompt').value.trim();
+    if (!idea) { showToast('يرجى كتابة فكرتك أولاً','error'); return; }
+
+    const model    = document.getElementById('modelSelect').value;
+    const btn      = document.getElementById('submitBtn');
+    const output   = document.getElementById('outputArea');
+    const copyBtn  = document.getElementById('copyBtn');
+    const tgBtn    = document.getElementById('tgSendBtn');
+
+    btn.disabled = true;
+    document.getElementById('btnText').innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span> جاري التوليد...';
+    document.getElementById('placeholder') && (document.getElementById('placeholder').style.display = 'none');
+    output.innerHTML = '<span class="cursor"></span>';
+    copyBtn.style.display = 'none';
+    tgBtn.style.display = 'none';
+
+    const systemPrompt = `أنت خبير في تطوير واجهات الويب الأمامية. مهمتك هي تحويل أي فكرة يصفها المستخدم إلى كود HTML/CSS/JavaScript كامل وجاهز للنشر.
+
+القواعد الصارمة:
+1. أرجع الكود فقط داخل هذا الشكل: \`\`\`html ... \`\`\`
+2. الكود يجب أن يكون في ملف HTML واحد يحتوي على CSS وJS مدمجَين
+3. التصميم يجب أن يكون احترافياً، مميزاً، وعصرياً - لا تصاميم مبتذلة
+4. استخدم خطوطاً من Google Fonts مناسبة للمحتوى
+5. اجعل التصميم responsive يعمل على الجوال والكمبيوتر
+6. أضف تأثيرات CSS وانيميشن تجعل الصفحة حيّة
+7. إذا كان المحتوى عربياً فأضف dir="rtl" وخطوطاً عربية
+8. لا تضع أي تعليق أو شرح خارج كتلة الكود
+9. استخدم متغيرات CSS وبنية كود نظيفة
+10. الكود يجب أن يعمل مباشرة بدون أي اعتماديات خارجية ما عدا CDNs`;
+
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://ayoub.pw',
+          'X-Title': 'Ayoub Prompt Studio'
+        },
+        body: JSON.stringify({
+          model,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user',   content: `الفكرة: ${idea}\n\nأنشئ لي الكود الكامل لهذه الفكرة.` }
+          ],
+          stream: true,
+          max_tokens: 4000
+        })
+      });
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error?.message || `HTTP ${response.status}`);
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+      output.innerHTML = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const chunk = decoder.decode(value);
+        for (const line of chunk.split('\n').filter(l => l.startsWith('data: '))) {
+          const d = line.slice(6);
+          if (d === '[DONE]') continue;
+          try {
+            const delta = JSON.parse(d).choices?.[0]?.delta?.content || '';
+            if (delta) { fullText += delta; output.textContent = fullText; output.scrollTop = output.scrollHeight; }
+          } catch {}
+        }
+      }
+
+      // Extract code
+      const codeMatch = fullText.match(/```html\n?([\s\S]*?)```/);
+      if (codeMatch) {
+        lastCode = codeMatch[1].trim();
+        output.textContent = lastCode;
+        addPreviewBtn(lastCode);
+      } else {
+        lastCode = fullText;
+      }
+
+      copyBtn.style.display = 'block';
+      if (tgToken && tgChatId) tgBtn.style.display = 'flex';
+      showToast('تم توليد الكود بنجاح ✓','success');
+
+      // Auto-send to Telegram
+      if (tgAuto && tgToken && tgChatId) {
+        setTimeout(() => sendToTelegram(), 500);
+      }
+
+    } catch(err) {
+      output.innerHTML = `<span style="color:var(--error)">⚠ خطأ: ${err.message}</span>`;
+      if (err.message.includes('401')) { showToast('مفتاح API غير صحيح','error'); updateApiStatus(false); }
+      else showToast('حدث خطأ، حاول مرة أخرى','error');
+    } finally {
+      btn.disabled = false;
+      document.getElementById('btnText').textContent = '✦ تحسين الفرونت إند';
+    }
+  }
+
+  function addPreviewBtn(code) {
+    const header = document.querySelector('.panel:last-child .panel-header');
+    const existing = document.getElementById('previewBtn');
+    if (existing) existing.remove();
+    const b = document.createElement('button');
+    b.id = 'previewBtn';
+    b.className = 'copy-btn';
+    b.style.cssText = 'border-color:var(--success);color:var(--success)';
+    b.textContent = '⊞ معاينة';
+    b.onclick = () => { const w = window.open('','_blank'); w.document.write(code); w.document.close(); };
+    header.querySelector('[style*="display:flex"]').prepend(b);
+  }
+
+  function copyOutput() {
+    navigator.clipboard.writeText(document.getElementById('outputArea').textContent)
+      .then(() => showToast('تم النسخ ✓','success'));
+  }
+
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast ${type} show`;
+    setTimeout(() => t.className = `toast ${type}`, 3000);
+  }
+
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') enhancePrompt();
+    if (e.key === 'Escape') closeModal();
+  });
+</script>
+</body>
+</html>
